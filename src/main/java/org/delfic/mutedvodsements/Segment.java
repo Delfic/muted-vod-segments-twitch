@@ -1,13 +1,11 @@
 package org.delfic.mutedvodsements;
 
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Class representing a segment of the vod.
@@ -43,7 +41,11 @@ public class Segment implements Comparable<Segment> {
 
     @Override
     public String toString() {
-        return startDuration + "-" + duration;
+        Duration start2 = startDuration.minusSeconds(5);
+        Duration duration2 = duration.plusSeconds(10);
+        String formattedStart = String.format(Locale.US, "%02d:%02d:%02d", start2.toHoursPart(), start2.toMinutesPart(), start2.toSecondsPart());
+        String formattedDuration = String.format(Locale.US, "%02d:%02d:%02d", duration2.toHoursPart(), duration2.toMinutesPart(), duration2.toSecondsPart());
+        return formattedStart + "-" + formattedDuration;
     }
 
     public boolean isMuted() {
