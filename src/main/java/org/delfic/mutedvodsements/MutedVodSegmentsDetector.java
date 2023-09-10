@@ -3,43 +3,29 @@ package org.delfic.mutedvodsements;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import us.codecraft.xsoup.Xsoup;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.delfic.utils.SeleniumUtils.getHtmlAfterJsFirstPass;
+import static org.delfic.utils.XPathUtils.getNodesForXPath;
+
 public class MutedVodSegmentsDetector {
     private final static String SEGMENTS_XPATH = "//SPAN[@data-test-selector='seekbar-segment__segment']";
     private final static String DURATION_XPATH = "//P[@data-a-target='player-seekbar-duration']";
-    public static final String TWITCH_VOD_BASE_PATH = "https://www.twitch.tv/videos/";
+    private static final String TWITCH_VOD_BASE_PATH = "https://www.twitch.tv/videos/";
 
     public static void main(String[] args) {
         final String vodUrl = TWITCH_VOD_BASE_PATH + args[0];
+        System.out.println(getMutedSegmentsFromUrl(vodUrl));
+    }
+
+    public static SortedSet<Segment> getMutedSegmentsFromUrl(final String vodUrl) {
         final String vodPageHtml = getHtmlAfterJsFirstPass(vodUrl);
         final Document document = Jsoup.parse(vodPageHtml);
-        System.out.println(getMutedSegmentsFromDocument(document));
-    }
-
-    private static String getHtmlAfterJsFirstPass(final String url) {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");
-        WebDriver driver = new ChromeDriver(options);
-        driver.get(url);
-        final String vodPageHtml = driver.getPageSource();
-        driver.quit();
-        return vodPageHtml;
-    }
-
-    private static Elements getNodesForXPath(final String xPath, final Document document) {
-        return Xsoup.compile(xPath).evaluate(document).getElements();
+        return getMutedSegmentsFromDocument(document);
     }
 
     private static Duration getDurationFromDocument(final Document document) {
