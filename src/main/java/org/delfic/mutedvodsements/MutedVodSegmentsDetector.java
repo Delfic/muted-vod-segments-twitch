@@ -13,32 +13,32 @@ import static org.delfic.utils.SeleniumUtils.getHtmlAfterJsFirstPass;
 import static org.delfic.utils.XPathUtils.getNodesForXPath;
 
 public class MutedVodSegmentsDetector {
-    private final static String SEGMENTS_XPATH = "//SPAN[@data-test-selector='seekbar-segment__segment']";
-    private final static String DURATION_XPATH = "//P[@data-a-target='player-seekbar-duration']";
-    private static final String TWITCH_VOD_BASE_PATH = "https://www.twitch.tv/videos/";
+	private final static String SEGMENTS_XPATH = "//SPAN[@data-test-selector='seekbar-segment__segment']";
+	private final static String DURATION_XPATH = "//P[@data-a-target='player-seekbar-duration']";
+	public static final String TWITCH_VOD_BASE_PATH = "https://www.twitch.tv/videos/";
 
-    public static void main(String[] args) {
-        final String vodUrl = TWITCH_VOD_BASE_PATH + args[0];
-        System.out.println(getMutedSegmentsFromUrl(vodUrl));
-    }
+	public static void main(String[] args) {
+		final String vodUrl = TWITCH_VOD_BASE_PATH + args[0];
+		System.out.println(getMutedSegmentsFromUrl(vodUrl));
+	}
 
-    public static SortedSet<Segment> getMutedSegmentsFromUrl(final String vodUrl) {
-        final String vodPageHtml = getHtmlAfterJsFirstPass(vodUrl);
-        final Document document = Jsoup.parse(vodPageHtml);
-        return getMutedSegmentsFromDocument(document);
-    }
+	public static SortedSet<Segment> getMutedSegmentsFromUrl(final String vodUrl) {
+		final String vodPageHtml = getHtmlAfterJsFirstPass(vodUrl);
+		final Document document = Jsoup.parse(vodPageHtml);
+		return getMutedSegmentsFromDocument(document);
+	}
 
-    private static Duration getDurationFromDocument(final Document document) {
-        final String durationString = getNodesForXPath(DURATION_XPATH, document).get(0).childNode(0).toString();
-        final String[] durationSplit = durationString.split(":");
-        return Duration.parse(String.format("PT%sH%sM%sS", durationSplit[0], durationSplit[1], durationSplit[2]));
-    }
+	private static Duration getDurationFromDocument(final Document document) {
+		final String durationString = getNodesForXPath(DURATION_XPATH, document).get(0).childNode(0).toString();
+		final String[] durationSplit = durationString.split(":");
+		return Duration.parse(String.format("PT%sH%sM%sS", durationSplit[0], durationSplit[1], durationSplit[2]));
+	}
 
-    private static SortedSet<Segment> getMutedSegmentsFromDocument(final Document document) {
-        final Duration vodDuration = getDurationFromDocument(document);
-        return getNodesForXPath(SEGMENTS_XPATH, document).stream()
-                                                         .map(e -> Segment.fromSegmentNode(e, vodDuration))
-                                                         .filter(Segment::isMuted)
-                                                         .collect(Collectors.toCollection(TreeSet::new));
-    }
+	private static SortedSet<Segment> getMutedSegmentsFromDocument(final Document document) {
+		final Duration vodDuration = getDurationFromDocument(document);
+		return getNodesForXPath(SEGMENTS_XPATH, document).stream()
+				.map(e -> Segment.fromSegmentNode(e, vodDuration))
+				.filter(Segment::isMuted)
+				.collect(Collectors.toCollection(TreeSet::new));
+	}
 }
