@@ -2,6 +2,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+output_clips/
+*.mp4
+*.jar
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
